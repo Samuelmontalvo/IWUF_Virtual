@@ -20,17 +20,18 @@ Lactate_Data$Period <- ordered(Lactate_Data$Period,
 
 library(writexl)
 write_xlsx(Lactate_Data,"Lactate_Data2.xlsx")
-
+Lactate_Data2 <- read_excel("Lactate_Data2.xlsx")
+View(Lactate_Data2)
 
 
   #distribution test
 library(rstatix)
-Lactate_Data %>% group_by(Period) %>% shapiro_test(Lactate)
+Lactate_Data2 %>% group_by(Period) %>% shapiro_test(Lactate)
 
 # Distribution plots
 library(ggplot2)
 library(ggridges)
-Lactate_Data %>% ggplot(aes(x=Lactate,y=Period, fill=Period)) +
+Lactate_Data2 %>% ggplot(aes(x=Lactate,y=Period, fill=Period)) +
   geom_density_ridges(rel_min_height = 0.005) +
   scale_y_discrete(expand = c(0.01, 0)) +
   scale_x_continuous(expand = c(0.01, 0)) + 
@@ -42,7 +43,7 @@ Lactate_Data %>% ggplot(aes(x=Lactate,y=Period, fill=Period)) +
 library(lme4)
 library(lmerTest)
 
-LmemModel <- lmer(Lactate ~ Period + (1|ID), data = Lactate_Data)
+LmemModel <- lmer(Lactate ~ Period + (1|ID), data = Lactate_Data2)
 
 summary(LmemModel)
 Anova(LmemModel)
@@ -53,20 +54,20 @@ rand(GlmmModel)
 
 library(kableExtra)
 
-pwc <- Lactate_Data %>% pairwise_t_test(Lactate ~ Period, paired = T,
+pwc <- Lactate_Data2 %>% pairwise_t_test(Lactate ~ Period, paired = T,
                   p.adjust.method	= "holm")
 pwc %>% kable()%>%
   kable_classic_2(full_width = F)
 
 
 # Effect size Cohen's D with Hedge's g correction for small sample size
-effect <- Lactate_Data %>% cohens_d(Lactate ~ Period,
+effect <- Lactate_Data2 %>% cohens_d(Lactate ~ Period,
                  paired = TRUE, hedges.correction = TRUE)
 effect %>% kable()%>%
   kable_classic_2(full_width = F)
 
 
-Lactate_Data %>%
+Lactate_Data2 %>%
   ggplot(aes(x=Period,y=Lactate, fill=Period)) + geom_boxplot() +
   geom_jitter() +
   scale_fill_brewer(palette="Spectral") + ylab("Lactate (mmol/L)") +
@@ -75,14 +76,14 @@ Lactate_Data %>%
 
 
 library(ggpubr)
-ggboxplot(Lactate_Data, x = "Period", y = "Lactate",
+ggboxplot(Lactate_Data2, x = "Period", y = "Lactate",
         color = "Period", palette = get_palette("Dark2", 8),
         ylab = ylab("Lactate (mmol/L)")) +
   stat_pvalue_manual(pwc,hide.ns = TRUE, y.position = 20, 
                      step.increase = 0.1) + geom_jitter()
 
 
-Lactate_Plot <- ggboxplot(Lactate_Data, x = "Period", y = "Lactate",
+Lactate_Plot <- ggboxplot(Lactate_Data2, x = "Period", y = "Lactate",
           color = "Period", palette = get_palette("Dark2", 8),
           ylab = ylab("Blood Lactate (mmol/L)"))  +
   stat_pvalue_manual(pwc,hide.ns = TRUE, y.position = 20, 
@@ -90,7 +91,7 @@ Lactate_Plot <- ggboxplot(Lactate_Data, x = "Period", y = "Lactate",
 ggsave("Lactate_plot.png")
 
 
-
+##NEW Data with JH and Lactate
 NSCA_2022 <- read_excel("NSCA_2022.xlsx")
 View(NSCA_2022)
 
